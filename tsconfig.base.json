@@ -1,38 +1,9 @@
-// {
-//   "compilerOptions": {
-//     "composite": true,
-//     "declarationMap": true,
-//     "emitDeclarationOnly": true,
-//     "importHelpers": true,
-//     "isolatedModules": true,
-//     "lib": ["es2022"],
-//     "module": "nodenext",
-//     "moduleResolution": "nodenext",
-//     "noEmitOnError": true,
-//     "noFallthroughCasesInSwitch": true,
-//     "noImplicitOverride": true,
-//     "noImplicitReturns": true,
-//     "noUnusedLocals": true,
-//     "skipLibCheck": true,
-//     "strict": true,
-//     "target": "es2022",
-//     "customConditions": ["@turbovets-task-manager/source"]
-//   }
-// }
 {
   "compilerOptions": {
-    // REMOVE these three Node-library options
-    // "composite": true,
-    // "declarationMap": true,
-    // "emitDeclarationOnly": true,
+    "baseUrl": ".",
     "importHelpers": true,
     "isolatedModules": true,
-    // Add DOM here, keep ES2022
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    // Use generic module settings that work for both Nest + Angular
+    "lib": ["ES2022", "DOM"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -42,7 +13,10 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022"
-    // If you see "customConditions": [...] you can safely remove it too.
+    "target": "es2022",
+    "paths": {
+      "@turbovets-task-manager/data": ["data/src/index.ts"],
+      "@turbovets-task-manager/auth": ["auth/src/index.ts"]
+    }
   }
 }
