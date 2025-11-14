@@ -27,6 +27,16 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 - ✅ **Secure API Endpoints** - All endpoints protected with JWT + RBAC guards
 - ✅ **SQLite Database** - TypeORM with automatic migrations
 
+### Frontend (Angular)
+
+- ✅ **Login UI** - Beautiful gradient design with JWT authentication
+- ✅ **Task Dashboard** - Create, edit, delete tasks with real-time updates
+- ✅ **Filtering & Sorting** - Filter by category, sort by date/title/category
+- ✅ **RBAC UI** - Admin/Owner see action buttons, Viewer has read-only access
+- ✅ **Responsive Design** - Seamless mobile to desktop experience
+- ✅ **State Management** - Angular signals for reactive state
+- ✅ **HTTP Interceptor** - Automatic JWT attachment to API requests
+
 ### Testing
 
 - ✅ **29 Passing Tests** - Comprehensive unit test coverage
@@ -54,7 +64,13 @@ turbovets-task-manager/
 │   │   │   └── main.ts        # App entry point with seeding
 │   │   └── jest.config.cjs    # Jest configuration
 │   ├── api-e2e/               # E2E tests
-│   └── dashboard/             # Angular frontend (not implemented)
+│   └── dashboard/             # Angular frontend
+│       ├── src/app/
+│       │   ├── components/    # Reusable UI components (TaskForm)
+│       │   ├── pages/         # Page components (Login, TaskList)
+│       │   ├── services/      # Angular services (Auth, Task)
+│       │   ├── guards/        # Route guards (AuthGuard)
+│       │   └── models/        # TypeScript interfaces (Task, User)
 ├── libs/
 │   ├── data/                  # Shared TypeScript interfaces & DTOs
 │   │   └── src/role.enum.ts  # Role enum (Owner, Admin, Viewer)
@@ -103,8 +119,9 @@ PORT=3000
 NODE_ENV=development
 ```
 
-### 3. Run the Backend
+### 3. Run the Backend API
 
+**Terminal 1:**
 ```bash
 # Development mode with hot-reload
 npx nx serve api
@@ -116,7 +133,22 @@ node dist/apps/api/main.js
 
 The API will be available at: **http://localhost:3000/api**
 
-### 4. Database Seeding
+### 4. Run the Frontend Dashboard
+
+**Terminal 2:**
+```bash
+npx nx serve dashboard
+```
+
+The dashboard will be available at: **http://localhost:4200**
+
+**Quick Start:**
+1. Start both backend (Terminal 1) and frontend (Terminal 2)
+2. Navigate to `http://localhost:4200`
+3. Login with: `admin@techcorp.com` / `password123`
+4. Create, edit, filter, and manage tasks!
+
+### 5. Database Seeding
 
 The application automatically seeds the database on first run with complete demo data.
 
@@ -137,7 +169,7 @@ The application automatically seeds the database on first run with complete demo
 
 **Demo Note:** Admin users at TechCorp can see tasks from both TechCorp AND TechCorp Sales (2-level hierarchy in action!).
 
-### 5. Run Tests
+### 6. Run Tests
 
 ```bash
 # Run all backend tests
