@@ -8,6 +8,12 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "../data"
+    },
+    {
+      "path": "../auth"
     }
   ]
 }

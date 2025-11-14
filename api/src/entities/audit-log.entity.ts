@@ -5,42 +5,47 @@ import {
     ManyToOne,
     CreateDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
-import { Task } from './task.entity';
+// Using string-based relations to avoid circular dependency issues
+// import { User } from './user.entity';
+// import { Task } from './task.entity';
+// import { Organization } from './organization.entity';
 
-export enum AuditAction {
-    TASK_CREATED = 'TASK_CREATED',
-    TASK_UPDATED = 'TASK_UPDATED',
-    TASK_DELETED = 'TASK_DELETED',
-    TASK_VIEWED = 'TASK_VIEWED',
-    LOGIN = 'LOGIN',
-    LOGOUT = 'LOGOUT',
-}
+export type AuditAction =
+    | 'login'
+    | 'create_task'
+    | 'update_task'
+    | 'delete_task';
 
 @Entity('audit_logs')
 export class AuditLog {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @ManyToOne(() => User, (u) => u.auditLogs, {
-        nullable: false,
-        onDelete: 'CASCADE',
-    })
-    actor!: User;
-
-    @ManyToOne(() => Task, {
+    @ManyToOne(() => require('./user.entity').User, (user: any) => user.auditLogs, {
         nullable: true,
         onDelete: 'SET NULL',
     })
-    task?: Task | null;
+    user!: any | null;
+
+    @ManyToOne(() => require('./task.entity').Task, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    task!: any | null;
+
+    @ManyToOne(() => require('./organization.entity').Organization, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    organization!: any | null;
 
     @Column({ type: 'text' })
     action!: AuditAction;
 
-    // Arbitrary extra info (e.g. previous values, IP, etc.)
     @Column({ type: 'simple-json', nullable: true })
-    meta?: Record<string, unknown> | null;
+    details!: Record<string, unknown> | null;
 
     @CreateDateColumn()
     createdAt!: Date;
 }
+

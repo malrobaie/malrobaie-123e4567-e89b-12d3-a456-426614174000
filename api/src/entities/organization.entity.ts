@@ -1,17 +1,15 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    ManyToOne,
-    OneToMany,
-    CreateDateColumn,
-    UpdateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-
-import { Membership } from './membership.entity';
-
-
-
+// Using string-based relations to avoid circular dependency issues
+// import { User } from './user.entity';
+// import { Task } from './task.entity';
+// import { Membership } from './membership.entity';
 
 @Entity('organizations')
 export class Organization {
@@ -21,17 +19,14 @@ export class Organization {
   @Column({ unique: true })
   name!: string;
 
-  @ManyToOne(() => Organization, (org) => org.children, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  parent!: Organization | null;
+  @OneToMany(() => require('./user.entity').User, (user: any) => user.organization)
+  users!: any[];
 
-  @OneToMany(() => Organization, (org) => org.parent)
-  children!: Organization[];
+  @OneToMany(() => require('./task.entity').Task, (task: any) => task.organization)
+  tasks!: any[];
 
-  @OneToMany(() => Membership, (m) => m.organization)
-  memberships!: Membership[];
+  @OneToMany(() => require('./membership.entity').Membership, (membership: any) => membership.organization)
+  memberships!: any[];
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -39,3 +34,4 @@ export class Organization {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
