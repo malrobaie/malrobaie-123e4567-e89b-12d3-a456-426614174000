@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard, RequireRole } from '../auth/roles.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { Role } from '@turbovets-task-manager/data';
+import type { AuthenticatedUser, CreateTaskDto, UpdateTaskDto } from '../auth/types';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -11,7 +12,7 @@ export class TasksController {
     constructor(private readonly tasks: TasksService) { }
 
     @Get()
-    getAll(@CurrentUser() user: any) {
+    getAll(@CurrentUser() user: AuthenticatedUser) {
         // All authenticated users can view tasks (Viewer, Admin, Owner)
         const membership = user.memberships?.[0];
         const userOrgId = membership?.organization?.id;
@@ -23,7 +24,7 @@ export class TasksController {
 
     @Post()
     @RequireRole(Role.ADMIN, Role.OWNER)
-    create(@Body() body: any, @CurrentUser() user: any) {
+    create(@Body() body: CreateTaskDto, @CurrentUser() user: AuthenticatedUser) {
         // Only Admin+ can create tasks
         const membership = user.memberships?.[0];
         const userOrgId = membership?.organization?.id;
@@ -35,7 +36,7 @@ export class TasksController {
 
     @Put(':id')
     @RequireRole(Role.ADMIN, Role.OWNER)
-    update(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+    update(@Param('id') id: string, @Body() body: UpdateTaskDto, @CurrentUser() user: AuthenticatedUser) {
         // Only Admin+ can update tasks
         const membership = user.memberships?.[0];
         const userOrgId = membership?.organization?.id;
@@ -47,7 +48,7 @@ export class TasksController {
 
     @Delete(':id')
     @RequireRole(Role.ADMIN, Role.OWNER)
-    delete(@Param('id') id: string, @CurrentUser() user: any) {
+    delete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
         // Only Admin+ can delete tasks
         const membership = user.memberships?.[0];
         const userOrgId = membership?.organization?.id;

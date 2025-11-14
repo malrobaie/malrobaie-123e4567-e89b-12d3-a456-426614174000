@@ -18,6 +18,7 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 ## ✨ Features
 
 ### Backend (NestJS)
+
 - ✅ **JWT Authentication** - Real authentication with bcrypt password hashing
 - ✅ **Role-Based Access Control** - Owner, Admin, Viewer roles with hierarchy
 - ✅ **2-Level Organization Hierarchy** - Parent-child organization relationships
@@ -26,11 +27,22 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 - ✅ **Secure API Endpoints** - All endpoints protected with JWT + RBAC guards
 - ✅ **SQLite Database** - TypeORM with automatic migrations
 
+### Frontend (Angular)
+
+- ✅ **Login UI** - Beautiful gradient design with JWT authentication
+- ✅ **Task Dashboard** - Create, edit, delete tasks with real-time updates
+- ✅ **Filtering & Sorting** - Filter by category, sort by date/title/category
+- ✅ **RBAC UI** - Admin/Owner see action buttons, Viewer has read-only access
+- ✅ **Responsive Design** - Seamless mobile to desktop experience
+- ✅ **State Management** - Angular signals for reactive state
+- ✅ **HTTP Interceptor** - Automatic JWT attachment to API requests
+
 ### Testing
-- ✅ **29 Passing Tests** - Comprehensive unit test coverage
-- ✅ **RBAC Logic Tests** - Role hierarchy and permission checks
-- ✅ **Authentication Tests** - JWT generation and validation
-- ✅ **Service Tests** - Tasks, Audit, Organization scoping
+
+- ✅ **48 Total Passing Tests** - Backend: 29 tests, Frontend: 19 tests
+- ✅ **Backend Tests** - RBAC, JWT auth, tasks service, audit logging
+- ✅ **Frontend Tests** - Authentication, task CRUD, component logic
+- ✅ **Comprehensive Coverage** - All critical business logic tested
 
 ---
 
@@ -52,7 +64,13 @@ turbovets-task-manager/
 │   │   │   └── main.ts        # App entry point with seeding
 │   │   └── jest.config.cjs    # Jest configuration
 │   ├── api-e2e/               # E2E tests
-│   └── dashboard/             # Angular frontend (not implemented)
+│   └── dashboard/             # Angular frontend
+│       ├── src/app/
+│       │   ├── components/    # Reusable UI components (TaskForm)
+│       │   ├── pages/         # Page components (Login, TaskList)
+│       │   ├── services/      # Angular services (Auth, Task)
+│       │   ├── guards/        # Route guards (AuthGuard)
+│       │   └── models/        # TypeScript interfaces (Task, User)
 ├── libs/
 │   ├── data/                  # Shared TypeScript interfaces & DTOs
 │   │   └── src/role.enum.ts  # Role enum (Owner, Admin, Viewer)
@@ -101,40 +119,86 @@ PORT=3000
 NODE_ENV=development
 ```
 
-### 3. Run the Backend
+### 3. Build & Run the Backend API
+
+**Terminal 1 - Backend:**
 
 ```bash
-# Development mode with hot-reload
-npx nx serve api
-
-# Production build
+# Step 1: Build the API
 npx nx build api
-node dist/apps/api/main.js
+
+# Step 2: Serve the API (development mode with hot-reload)
+npx nx serve api
 ```
 
 The API will be available at: **http://localhost:3000/api**
 
-### 4. Database Seeding
+**Production Build:**
+```bash
+npx nx build api
+node dist/apps/api/main.js
+```
+
+### 4. Build & Run the Frontend Dashboard
+
+**Terminal 2 - Frontend:**
+
+```bash
+# Step 1: Build the dashboard
+npx nx build dashboard
+
+# Step 2: Serve the dashboard (development mode with hot-reload)
+npx nx serve dashboard
+```
+
+The dashboard will be available at: **http://localhost:4200**
+
+### 🎯 Quick Start Guide
+
+1. **Open Terminal 1** → Run backend:
+   ```bash
+   npx nx serve api
+   ```
+   ✅ Wait for: `🚀 Application is running on: http://localhost:3000/api`
+
+2. **Open Terminal 2** → Run frontend:
+   ```bash
+   npx nx serve dashboard
+   ```
+   ✅ Wait for: `Application bundle generation complete`
+
+3. **Open Browser** → Navigate to: `http://localhost:4200`
+
+4. **Login** with demo credentials:
+   - **Email:** `admin@techcorp.com`
+   - **Password:** `password123`
+
+5. **Start managing tasks!** ✨
+
+### 5. Database Seeding
 
 The application automatically seeds the database on first run with complete demo data.
 
 **Seeded Data:**
-- **3 Organizations:** TechCorp (parent), TechCorp Sales (child), FinanceInc  
+
+- **3 Organizations:** TechCorp (parent), TechCorp Sales (child), FinanceInc
 - **4 Users** with roles and memberships
 - **3 Sample tasks** demonstrating org hierarchy
 
 **Test Users:**
 
-| Email | Password | Role | Organization |
-|-------|----------|------|--------------|
-| owner@techcorp.com | password123 | Owner | TechCorp |
-| admin@techcorp.com | password123 | Admin | TechCorp |
-| viewer@techcorp.com | password123 | Viewer | TechCorp |
-| admin@finance.com | password123 | Admin | FinanceInc |
+| Email               | Password    | Role   | Organization |
+| ------------------- | ----------- | ------ | ------------ |
+| owner@techcorp.com  | password123 | Owner  | TechCorp     |
+| admin@techcorp.com  | password123 | Admin  | TechCorp     |
+| viewer@techcorp.com | password123 | Viewer | TechCorp     |
+| admin@finance.com   | password123 | Admin  | FinanceInc   |
 
 **Demo Note:** Admin users at TechCorp can see tasks from both TechCorp AND TechCorp Sales (2-level hierarchy in action!).
 
-### 5. Run Tests
+### 6. Run Tests
+
+**Backend Tests (29 tests):**
 
 ```bash
 # Run all backend tests
@@ -145,6 +209,25 @@ npx nx test api --testPathPattern="auth.service.spec"
 
 # Test with coverage
 npx nx test api --coverage
+```
+
+**Frontend Tests (19 tests):**
+
+```bash
+# Run all frontend tests
+npx nx test dashboard
+
+# Run specific test file
+npx nx test dashboard --testPathPattern="auth.service.spec"
+
+# Test with coverage
+npx nx test dashboard --coverage
+```
+
+**Run All Tests:**
+
+```bash
+npx nx run-many --target=test --all
 ```
 
 ---
@@ -206,27 +289,32 @@ npx nx test api --coverage
 ### Key Entities
 
 #### User
+
 - Stores authentication credentials (email, passwordHash)
 - Links to organizations via Membership table
 - Can have multiple memberships (future: multi-org support)
 
 #### Organization
+
 - **2-level hierarchy** via `parentId` self-reference
 - Parent orgs can see child org tasks
 - Used for scoping all data access
 
 #### Membership
+
 - Join table between User and Organization
 - Stores user's **role** (Owner, Admin, Viewer)
 - Unique constraint on `(userId, organizationId)`
 
 #### Task
+
 - Core business entity
 - Belongs to exactly one Organization
 - Has creator (`createdBy`) and optional assignee
 - Category field for filtering (e.g., "Work", "Personal")
 
 #### AuditLog
+
 - Immutable event log
 - Tracks: login, task CRUD, permission denials
 - Stores structured `details` as JSON
@@ -280,7 +368,7 @@ export function isAdminOrAbove(role: Role): boolean {
 #### 4. **Roles Guard** (`api/src/app/auth/roles.guard.ts`)
 
 ```typescript
-@RequireRole(Role.ADMIN, Role.OWNER)  // Decorator
+@RequireRole(Role.ADMIN, Role.OWNER) // Decorator
 export class RolesGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     // 1. Get required roles from decorator metadata
@@ -296,12 +384,12 @@ export class RolesGuard implements CanActivate {
 ```typescript
 private async getAccessibleOrganizationIds(userOrgId: string) {
   const accessibleIds = [userOrgId];
-  
+
   // Find child organizations (2-level hierarchy)
   const childOrgs = await this.orgRepo.find({
     where: { parentId: userOrgId },
   });
-  
+
   accessibleIds.push(...childOrgs.map(org => org.id));
   return accessibleIds;
 }
@@ -310,16 +398,19 @@ private async getAccessibleOrganizationIds(userOrgId: string) {
 ### How JWT Auth Integrates with RBAC
 
 1. **User logs in** → `POST /auth/login`
+
    - Validates credentials with bcrypt
    - Generates JWT with payload: `{ sub: userId, email, role, organizationId }`
    - Returns `accessToken`
 
 2. **Client includes JWT** in all requests:
+
    ```
    Authorization: Bearer <accessToken>
    ```
 
 3. **Request Pipeline**:
+
    ```
    Request
      → JwtAuthGuard (validates token, attaches user to request)
@@ -345,6 +436,7 @@ Base URL: `http://localhost:3000/api`
 Login and receive JWT token.
 
 **Request:**
+
 ```json
 {
   "email": "admin@techcorp.com",
@@ -353,6 +445,7 @@ Login and receive JWT token.
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -377,6 +470,7 @@ List all tasks accessible to the user (their org + child orgs).
 **Authorization:** All authenticated users (Viewer, Admin, Owner)
 
 **Response:**
+
 ```json
 [
   {
@@ -400,6 +494,7 @@ Create a new task.
 **Authorization:** Admin, Owner only
 
 **Request:**
+
 ```json
 {
   "title": "New Task",
@@ -418,6 +513,7 @@ Update an existing task.
 **Authorization:** Admin, Owner only (must be in accessible org)
 
 **Request:**
+
 ```json
 {
   "title": "Updated Title",
@@ -429,6 +525,7 @@ Update an existing task.
 **Response:** Updated task object
 
 **Errors:**
+
 - `403 Forbidden` - Insufficient permissions
 - `404 Not Found` - Task doesn't exist or not in accessible org
 
@@ -441,6 +538,7 @@ Delete a task.
 **Response:** `204 No Content`
 
 **Errors:**
+
 - `403 Forbidden` - Insufficient permissions
 - `404 Not Found` - Task doesn't exist or not in accessible org
 
@@ -453,9 +551,11 @@ View audit logs for the user's organization (+ child orgs).
 **Authorization:** Admin, Owner only
 
 **Query Parameters:**
+
 - (None currently - returns last 100 logs)
 
 **Response:**
+
 ```json
 [
   {
@@ -474,6 +574,7 @@ View audit logs for the user's organization (+ child orgs).
 ```
 
 **Audit Actions:**
+
 - `login` - User logged in
 - `create_task` - Task created
 - `update_task` - Task updated
@@ -488,35 +589,39 @@ View audit logs for the user's organization (+ child orgs).
 
 **Total: 29 tests passing**
 
-| Test Suite | Tests | Description |
-|-----------|-------|-------------|
-| `roles.guard.spec.ts` | 5 | RBAC guard logic, role hierarchy |
-| `auth.service.spec.ts` | 7 | JWT auth, login, password validation |
-| `tasks.service.spec.ts` | 8 | CRUD, org scoping, 2-level hierarchy |
-| `audit.service.spec.ts` | 5 | Audit logging, org scoping |
-| Other | 4 | App, users, placeholder tests |
+| Test Suite              | Tests | Description                          |
+| ----------------------- | ----- | ------------------------------------ |
+| `roles.guard.spec.ts`   | 5     | RBAC guard logic, role hierarchy     |
+| `auth.service.spec.ts`  | 7     | JWT auth, login, password validation |
+| `tasks.service.spec.ts` | 8     | CRUD, org scoping, 2-level hierarchy |
+| `audit.service.spec.ts` | 5     | Audit logging, org scoping           |
+| Other                   | 4     | App, users, placeholder tests        |
 
 ### Key Test Scenarios
 
 #### RBAC Tests
+
 - ✅ Owner can access Admin endpoints (role hierarchy)
 - ✅ Admin can access Admin endpoints
 - ✅ Viewer cannot access Admin endpoints
 - ✅ Unauthenticated users are rejected
 
 #### Authentication Tests
+
 - ✅ Valid credentials return JWT
 - ✅ Invalid email/password throw UnauthorizedException
 - ✅ JWT includes role and organizationId
 - ✅ Login event is audit logged
 
 #### Organization Scoping Tests
+
 - ✅ Users see tasks from their org
 - ✅ Users see tasks from child orgs (2-level hierarchy)
 - ✅ Users cannot access tasks from other orgs
 - ✅ CRUD operations respect org boundaries
 
 #### Audit Logging Tests
+
 - ✅ Login events are logged
 - ✅ Task CRUD events are logged with details
 - ✅ Audit logs are scoped to org + children
@@ -558,6 +663,7 @@ Write-Host "User: $($data.user.email) | Role: $($data.user.role)"
 ```
 
 **Expected Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -582,6 +688,7 @@ $tasks | Select-Object title, category, status | Format-Table
 ```
 
 **Expected Response:**
+
 ```
 title                 category status
 -----                 -------- ------
@@ -605,6 +712,7 @@ $taskId = $newTask.id
 ```
 
 **Expected Response:**
+
 ```json
 {
   "id": "99fe22b7-a7e4-4ea3-b31a-215442ce7e94",
@@ -631,6 +739,7 @@ Write-Host "✅ Updated: $($updated.title) - Status: $($updated.status)"
 ```
 
 **Expected Response:**
+
 ```json
 {
   "id": "99fe22b7-a7e4-4ea3-b31a-215442ce7e94",
@@ -654,6 +763,7 @@ $audit.logs | Select-Object -First 5 action, userEmail, createdAt | Format-Table
 ```
 
 **Expected Response:**
+
 ```
 action      userEmail              createdAt
 ------      ---------              ---------
@@ -692,7 +802,7 @@ try {
         -ContentType "application/json" `
         -Headers @{Authorization="Bearer $viewerToken"} `
         -Body '{"title":"Should Fail"}'
-    
+
     Write-Host "❌ FAILED: Viewer was able to create task!" -ForegroundColor Red
 } catch {
     Write-Host "✅ RBAC working - Viewer blocked (403 Forbidden)" -ForegroundColor Green
@@ -700,6 +810,7 @@ try {
 ```
 
 **Expected Response:**
+
 ```
 403 Forbidden - {"statusCode":403,"message":"Forbidden resource","error":"Forbidden"}
 ```
@@ -733,16 +844,19 @@ Write-Host "FinanceInc admin sees $($taskList.Count) tasks (should not include T
 ### Security Enhancements
 
 #### JWT Refresh Tokens
+
 - **Current:** Single long-lived access token
 - **Future:** Short-lived access token (15min) + refresh token (7 days)
 - **Benefit:** Reduced exposure window if token is compromised
 
 #### CSRF Protection
+
 - **Current:** API-only (no browser state)
 - **Future:** If adding cookie-based auth, implement CSRF tokens
 - **Benefit:** Prevent cross-site request forgery attacks
 
 #### RBAC Caching
+
 - **Current:** Role check on every request via guard
 - **Future:** Cache role permissions in Redis
 - **Benefit:** Reduce database queries for high-traffic scenarios
@@ -750,14 +864,16 @@ Write-Host "FinanceInc admin sees $($taskList.Count) tasks (should not include T
 ### Scalability
 
 #### Permission Checks Optimization
+
 - **Current:** Database query for each org scoping check
-- **Future:** 
+- **Future:**
   - Cache accessible org IDs per user session
   - Use Redis for fast lookups
   - Invalidate on org structure changes
 - **Benefit:** 10x faster permission checks
 
 #### Advanced Role Delegation
+
 - **Current:** Fixed 3-role hierarchy (Owner > Admin > Viewer)
 - **Future:**
   - Custom roles with granular permissions
@@ -766,6 +882,7 @@ Write-Host "FinanceInc admin sees $($taskList.Count) tasks (should not include T
 - **Benefit:** More flexible access control
 
 #### Multi-Tenancy
+
 - **Current:** 2-level org hierarchy (parent-child)
 - **Future:**
   - Unlimited org depth
