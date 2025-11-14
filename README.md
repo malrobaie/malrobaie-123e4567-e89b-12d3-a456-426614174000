@@ -31,6 +31,11 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 
 - ✅ **Login UI** - Beautiful gradient design with JWT authentication
 - ✅ **Task Dashboard** - Create, edit, delete tasks with real-time updates
+- ✅ **Kanban Board** - Visual task management with To Do, In Progress, Done columns
+- ✅ **Drag & Drop** - Reorder tasks and change status by dragging between columns
+- ✅ **Checklist/Subtasks** - Add checklist items to tasks with completion tracking
+- ✅ **Progress Visualization** - Elegant progress bars on each card showing checklist completion
+- ✅ **Dark/Light Mode** - Global theme toggle with persistent preference
 - ✅ **Filtering & Sorting** - Filter by category, sort by date/title/category
 - ✅ **RBAC UI** - Admin/Owner see action buttons, Viewer has read-only access
 - ✅ **Responsive Design** - Seamless mobile to desktop experience
@@ -43,6 +48,12 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 - ✅ **Backend Tests** - RBAC, JWT auth, tasks service, audit logging
 - ✅ **Frontend Tests** - Authentication, task CRUD, component logic
 - ✅ **Comprehensive Coverage** - All critical business logic tested
+
+### Bonus Features
+
+- ✅ **Drag-and-Drop** - Angular CDK for intuitive task reordering and status changes
+- ✅ **Task Completion Visualization** - Progress bars on cards based on checklist completion
+- ✅ **Dark/Light Mode Toggle** - Global theme with localStorage persistence
 
 ---
 
@@ -134,6 +145,7 @@ npx nx serve api
 The API will be available at: **http://localhost:3000/api**
 
 **Production Build:**
+
 ```bash
 npx nx build api
 node dist/apps/api/main.js
@@ -156,20 +168,25 @@ The dashboard will be available at: **http://localhost:4200**
 ### 🎯 Quick Start Guide
 
 1. **Open Terminal 1** → Run backend:
+
    ```bash
    npx nx serve api
    ```
+
    ✅ Wait for: `🚀 Application is running on: http://localhost:3000/api`
 
 2. **Open Terminal 2** → Run frontend:
+
    ```bash
    npx nx serve dashboard
    ```
+
    ✅ Wait for: `Application bundle generation complete`
 
 3. **Open Browser** → Navigate to: `http://localhost:4200`
 
 4. **Login** with demo credentials:
+
    - **Email:** `admin@techcorp.com`
    - **Password:** `password123`
 
