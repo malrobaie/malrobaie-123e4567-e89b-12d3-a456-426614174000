@@ -16,6 +16,7 @@ export interface CreateTaskDto {
     description?: string;
     category?: string;
     status?: string;
+    checklist?: Array<{ id: string; text: string; completed: boolean }>;
 }
 
 export interface UpdateTaskDto {
@@ -23,5 +24,7 @@ export interface UpdateTaskDto {
     description?: string;
     category?: string;
     status?: string;
+    sortOrder?: number;
+    checklist?: Array<{ id: string; text: string; completed: boolean }>;
 }
 

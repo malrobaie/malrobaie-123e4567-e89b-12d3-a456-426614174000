@@ -1,19 +1,31 @@
-<div class="min-h-screen flex flex-col bg-gray-50">
+<div class="min-h-screen flex flex-col bg-gradient-radial from-white to-[#CBE9FF] dark:from-gray-900 dark:to-gray-800 transition-colors">
   <!-- Header -->
-  <header class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-md">
+  <header class="bg-[#001E8A] dark:bg-gray-900 text-white shadow-lg transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold">📋 Task Management</h1>
       <div class="flex items-center gap-3">
+        <!-- Dark Mode Toggle -->
+        <button 
+          (click)="themeService.toggleTheme()"
+          class="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          title="Toggle dark mode">
+          @if (themeService.isDarkMode()) {
+            <span class="text-xl">☀️</span>
+          } @else {
+            <span class="text-xl">🌙</span>
+          }
+        </button>
+
         @if (authService.currentUser(); as user) {
           <div class="flex items-center gap-2">
             <span class="text-sm hidden md:inline">{{ user.email }}</span>
             <span class="px-2 py-1 text-xs font-bold rounded-full uppercase"
-                  [class.bg-yellow-400]="user.role === 'owner'"
-                  [class.text-yellow-900]="user.role === 'owner'"
-                  [class.bg-blue-400]="user.role === 'admin'"
-                  [class.text-blue-900]="user.role === 'admin'"
-                  [class.bg-purple-300]="user.role === 'viewer'"
-                  [class.text-purple-900]="user.role === 'viewer'">
+                  [class.bg-blue-300]="user.role === 'owner'"
+                  [class.text-blue-900]="user.role === 'owner'"
+                  [class.bg-blue-200]="user.role === 'admin'"
+                  [class.text-blue-800]="user.role === 'admin'"
+                  [class.bg-blue-100]="user.role === 'viewer'"
+                  [class.text-blue-700]="user.role === 'viewer'">
               {{ user.role }}
             </span>
           </div>
@@ -31,37 +43,24 @@
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
     <!-- Toolbar -->
     <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-8">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex items-center gap-2">
-          <label class="text-sm font-semibold text-gray-700">Category:</label>
-          <select 
-            class="px-3 py-2 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-[150px]"
-            [(ngModel)]="selectedCategory" 
-            (change)="selectedCategory.set($any($event.target).value)">
-            @for (cat of categories(); track cat) {
-              <option [value]="cat">
-                {{ cat === 'all' ? 'All Categories' : cat }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <label class="text-sm font-semibold text-gray-700">Sort by:</label>
-          <select 
-            class="px-3 py-2 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-[150px]"
-            [(ngModel)]="sortBy" 
-            (change)="sortBy.set($any($event.target).value)">
-            <option value="date">Date (Newest)</option>
-            <option value="title">Title (A-Z)</option>
-            <option value="category">Category</option>
-          </select>
-        </div>
+      <div class="flex items-center gap-2">
+        <label for="categoryFilter" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filter by Category:</label>
+        <select 
+          id="categoryFilter"
+          class="px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001E8A] focus:border-transparent min-w-[150px]"
+          [(ngModel)]="selectedCategory" 
+          (change)="selectedCategory.set($any($event.target).value)">
+          @for (cat of categories(); track cat) {
+            <option [value]="cat">
+              {{ cat === 'all' ? 'All Categories' : cat }}
+            </option>
+          }
+        </select>
       </div>
 
       @if (authService.isAdmin()) {
         <button 
-          class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-semibold rounded-lg hover:shadow-lg hover:-translate-y-0.5 transform transition-all"
+          class="px-6 py-2.5 bg-[#001E8A] hover:bg-[#001563] dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white font-semibold rounded-lg hover:shadow-lg hover:-translate-y-0.5 transform transition-all"
           (click)="openCreateForm()">
           + Create Task
         </button>
@@ -71,74 +70,278 @@
     <!-- Loading State -->
     @if (isLoading()) {
       <div class="text-center py-16">
-        <div class="inline-block w-10 h-10 border-4 border-gray-200 border-t-purple-600 rounded-full animate-spin"></div>
-        <p class="mt-4 text-gray-600">Loading tasks...</p>
+        <div class="inline-block w-10 h-10 border-4 border-gray-200 border-t-[#001E8A] rounded-full animate-spin"></div>
+        <p class="mt-4 text-[#001E8A] font-semibold">Loading tasks...</p>
       </div>
     }
 
-    <!-- Task Grid -->
+    <!-- Kanban Board -->
     @if (!isLoading()) {
-      @if (filteredAndSortedTasks().length === 0) {
-        <div class="text-center py-16">
-          <p class="text-lg text-gray-600 mb-6">No tasks found</p>
-          @if (authService.isAdmin()) {
-            <button 
-              class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-semibold rounded-lg hover:shadow-lg hover:-translate-y-0.5 transform transition-all"
-              (click)="openCreateForm()">
-              Create your first task
-            </button>
-          }
-        </div>
-      } @else {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          @for (task of filteredAndSortedTasks(); track task.id) {
-            <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-              <div class="flex justify-between items-start gap-3 mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 flex-1 break-words">{{ task.title }}</h3>
-                @if (task.status) {
-                  <span class="px-2 py-1 text-xs font-bold rounded-full whitespace-nowrap"
-                        [class.bg-green-100]="task.status === 'completed'"
-                        [class.text-green-800]="task.status === 'completed'"
-                        [class.bg-blue-100]="task.status === 'in-progress'"
-                        [class.text-blue-800]="task.status === 'in-progress'"
-                        [class.bg-yellow-100]="task.status === 'pending'"
-                        [class.text-yellow-800]="task.status === 'pending'">
-                    {{ task.status }}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- TO DO Column -->
+        <div class="flex flex-col">
+          <div class="bg-slate-400 dark:bg-slate-600 text-white font-bold px-4 py-3 rounded-t-xl flex items-center justify-between shadow-sm transition-colors">
+            <span>📋 To Do</span>
+            <span class="text-sm bg-white/60 dark:bg-white/20 px-2 py-1 rounded-full font-semibold text-slate-900 dark:text-white">{{ todoTasks().length }}</span>
+          </div>
+          <div 
+            class="flex-1 bg-gradient-to-b from-slate-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-b-xl p-4 min-h-[400px] border-2 border-slate-200 dark:border-slate-700 transition-colors"
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="todoTasks()"
+            [cdkDropListConnectedTo]="[inProgressList, doneList]"
+            (cdkDropListDropped)="onDrop($event, 'todo')">
+            @if (todoTasks().length === 0) {
+              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p class="text-sm">No tasks</p>
+                <p class="text-xs mt-1">Drag tasks here</p>
+              </div>
+            }
+            @for (task of todoTasks(); track task.id) {
+              <div 
+                class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3 shadow-sm hover:shadow-md dark:shadow-gray-900/50 transition-all cursor-move border border-transparent dark:border-gray-700"
+                cdkDrag
+                [cdkDragData]="task">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <h4 class="font-semibold text-gray-900 dark:text-white flex-1">{{ task.title }}</h4>
+                  <div class="text-xl cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-500" cdkDragHandle>⋮⋮</div>
+                </div>
+                
+                <!-- Progress Bar -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3">
+                    <div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        class="h-full bg-gradient-to-r from-slate-500 to-slate-600 dark:from-slate-400 dark:to-slate-500 transition-all duration-300 ease-in-out"
+                        [style.width.%]="getCompletionPercentage(task)">
+                      </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getCompletedCount(task) }}/{{ task.checklist.length }} completed</p>
+                  </div>
+                }
+                
+                @if (task.description) {
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
+                }
+                
+                <!-- Checklist Items -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3 space-y-1">
+                    @for (item of task.checklist; track item.id) {
+                      <label class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded transition-colors">
+                        <input 
+                          type="checkbox" 
+                          [checked]="item.completed"
+                          (change)="toggleChecklistItem(task, item.id)"
+                          class="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-slate-600 dark:text-slate-400 focus:ring-slate-500 dark:focus:ring-slate-400 cursor-pointer"
+                        />
+                        <span class="dark:text-gray-300" [class.line-through]="item.completed" [class.text-gray-400]="item.completed" [class.dark:text-gray-500]="item.completed">{{ item.text }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+                
+                @if (task.category) {
+                  <span class="inline-block text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full mb-3">
+                    🏷️ {{ task.category }}
                   </span>
                 }
-              </div>
-
-              @if (task.description) {
-                <p class="text-gray-600 mb-4 line-clamp-3">{{ task.description }}</p>
-              }
-
-              <div class="flex flex-wrap gap-2 mb-4 pb-4 border-b border-gray-200">
-                @if (task.category) {
-                  <span class="text-sm text-gray-600">🏷️ {{ task.category }}</span>
+                
+                @if (authService.isAdmin()) {
+                  <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded transition-colors"
+                      (click)="openEditForm(task)">
+                      Edit
+                    </button>
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold rounded transition-colors"
+                      (click)="deleteTask(task)">
+                      Delete
+                    </button>
+                  </div>
                 }
-                @if (task.createdBy?.displayName) {
-                  <span class="text-sm text-gray-600">👤 {{ task.createdBy?.displayName }}</span>
-                }
               </div>
-
-              @if (authService.isAdmin()) {
-                <div class="flex gap-2">
-                  <button 
-                    class="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-md transition-colors"
-                    (click)="openEditForm(task)">
-                    Edit
-                  </button>
-                  <button 
-                    class="flex-1 px-3 py-2 bg-red-100 hover:bg-red-500 text-red-700 hover:text-white font-semibold rounded-md transition-colors"
-                    (click)="deleteTask(task)">
-                    Delete
-                  </button>
-                </div>
-              }
-            </div>
-          }
+            }
+          </div>
         </div>
-      }
+
+        <!-- IN PROGRESS Column -->
+        <div class="flex flex-col">
+          <div class="bg-cyan-600 dark:bg-cyan-700 text-white font-bold px-4 py-3 rounded-t-xl flex items-center justify-between shadow-sm transition-colors">
+            <span>🚀 In Progress</span>
+            <span class="text-sm bg-white/60 dark:bg-white/20 px-2 py-1 rounded-full font-semibold text-cyan-900 dark:text-white">{{ inProgressTasks().length }}</span>
+          </div>
+          <div 
+            class="flex-1 bg-gradient-to-b from-cyan-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-b-xl p-4 min-h-[400px] border-2 border-cyan-200 dark:border-cyan-800 transition-colors"
+            cdkDropList
+            #inProgressList="cdkDropList"
+            [cdkDropListData]="inProgressTasks()"
+            [cdkDropListConnectedTo]="[todoList, doneList]"
+            (cdkDropListDropped)="onDrop($event, 'in-progress')">
+            @if (inProgressTasks().length === 0) {
+              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p class="text-sm">No tasks</p>
+                <p class="text-xs mt-1">Drag tasks here</p>
+              </div>
+            }
+            @for (task of inProgressTasks(); track task.id) {
+              <div 
+                class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3 shadow-sm hover:shadow-md dark:shadow-gray-900/50 transition-all cursor-move border border-transparent dark:border-gray-700"
+                cdkDrag
+                [cdkDragData]="task">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <h4 class="font-semibold text-gray-900 dark:text-white flex-1">{{ task.title }}</h4>
+                  <div class="text-xl cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-500" cdkDragHandle>⋮⋮</div>
+                </div>
+                
+                <!-- Progress Bar -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3">
+                    <div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        class="h-full bg-gradient-to-r from-cyan-500 to-cyan-700 dark:from-cyan-400 dark:to-cyan-600 transition-all duration-300 ease-in-out"
+                        [style.width.%]="getCompletionPercentage(task)">
+                      </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getCompletedCount(task) }}/{{ task.checklist.length }} completed</p>
+                  </div>
+                }
+                
+                @if (task.description) {
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
+                }
+                
+                <!-- Checklist Items -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3 space-y-1">
+                    @for (item of task.checklist; track item.id) {
+                      <label class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded transition-colors">
+                        <input 
+                          type="checkbox" 
+                          [checked]="item.completed"
+                          (change)="toggleChecklistItem(task, item.id)"
+                          class="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-cyan-600 dark:text-cyan-400 focus:ring-cyan-500 dark:focus:ring-cyan-400 cursor-pointer"
+                        />
+                        <span class="dark:text-gray-300" [class.line-through]="item.completed" [class.text-gray-400]="item.completed" [class.dark:text-gray-500]="item.completed">{{ item.text }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+                
+                @if (task.category) {
+                  <span class="inline-block text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full mb-3">
+                    🏷️ {{ task.category }}
+                  </span>
+                }
+                
+                @if (authService.isAdmin()) {
+                  <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded transition-colors"
+                      (click)="openEditForm(task)">
+                      Edit
+                    </button>
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold rounded transition-colors"
+                      (click)="deleteTask(task)">
+                      Delete
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- DONE Column -->
+        <div class="flex flex-col">
+          <div class="bg-teal-700 dark:bg-teal-800 text-white font-bold px-4 py-3 rounded-t-xl flex items-center justify-between shadow-sm transition-colors">
+            <span>✅ Done</span>
+            <span class="text-sm bg-white/60 dark:bg-white/20 px-2 py-1 rounded-full font-semibold text-teal-900 dark:text-white">{{ doneTasks().length }}</span>
+          </div>
+          <div 
+            class="flex-1 bg-gradient-to-b from-teal-50 to-emerald-50 dark:from-gray-800 dark:to-gray-900 rounded-b-xl p-4 min-h-[400px] border-2 border-teal-200 dark:border-teal-800 transition-colors"
+            cdkDropList
+            #doneList="cdkDropList"
+            [cdkDropListData]="doneTasks()"
+            [cdkDropListConnectedTo]="[todoList, inProgressList]"
+            (cdkDropListDropped)="onDrop($event, 'done')">
+            @if (doneTasks().length === 0) {
+              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p class="text-sm">No tasks</p>
+                <p class="text-xs mt-1">Drag tasks here</p>
+              </div>
+            }
+            @for (task of doneTasks(); track task.id) {
+              <div 
+                class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3 shadow-sm hover:shadow-md dark:shadow-gray-900/50 transition-all cursor-move border border-transparent dark:border-gray-700"
+                cdkDrag
+                [cdkDragData]="task">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <h4 class="font-semibold text-gray-900 dark:text-white flex-1">{{ task.title }}</h4>
+                  <div class="text-xl cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-500" cdkDragHandle>⋮⋮</div>
+                </div>
+                
+                <!-- Progress Bar -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3">
+                    <div class="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        class="h-full bg-gradient-to-r from-teal-600 to-emerald-600 dark:from-teal-500 dark:to-emerald-500 transition-all duration-300 ease-in-out"
+                        [style.width.%]="getCompletionPercentage(task)">
+                      </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getCompletedCount(task) }}/{{ task.checklist.length }} completed</p>
+                  </div>
+                }
+                
+                @if (task.description) {
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
+                }
+                
+                <!-- Checklist Items -->
+                @if (task.checklist && task.checklist.length > 0) {
+                  <div class="mb-3 space-y-1">
+                    @for (item of task.checklist; track item.id) {
+                      <label class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded transition-colors">
+                        <input 
+                          type="checkbox" 
+                          [checked]="item.completed"
+                          (change)="toggleChecklistItem(task, item.id)"
+                          class="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-teal-700 dark:text-teal-400 focus:ring-teal-600 dark:focus:ring-teal-400 cursor-pointer"
+                        />
+                        <span class="dark:text-gray-300" [class.line-through]="item.completed" [class.text-gray-400]="item.completed" [class.dark:text-gray-500]="item.completed">{{ item.text }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+                
+                @if (task.category) {
+                  <span class="inline-block text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full mb-3">
+                    🏷️ {{ task.category }}
+                  </span>
+                }
+                
+                @if (authService.isAdmin()) {
+                  <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded transition-colors"
+                      (click)="openEditForm(task)">
+                      Edit
+                    </button>
+                    <button 
+                      class="flex-1 px-2 py-1.5 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold rounded transition-colors"
+                      (click)="deleteTask(task)">
+                      Delete
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
     }
   </main>
 
