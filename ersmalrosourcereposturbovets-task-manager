@@ -1,0 +1,32 @@
+warning: in the working copy of 'api/src/app/auth/auth.controller.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/auth/auth.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/auth/auth.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/tasks/tasks.controller.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/tasks/tasks.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/tasks/tasks.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/users/users.module.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/app/users/users.service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/src/main.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'api/tsconfig.app.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'auth/src/lib/auth.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+api/src/app/auth/auth.controller.ts
+api/src/app/auth/auth.module.ts
+api/src/app/auth/auth.service.ts
+api/src/app/tasks/tasks.controller.ts
+api/src/app/tasks/tasks.module.ts
+api/src/app/tasks/tasks.service.ts
+api/src/app/users/users.module.ts
+api/src/app/users/users.service.ts
+api/src/entities/audit-log.entity.ts
+api/src/entities/membership.entity.ts
+api/src/entities/organization.entity.ts
+api/src/entities/task.entity.ts
+api/src/entities/user.entity.ts
+api/src/main.ts
+api/tsconfig.app.json
+auth/src/index.ts
+auth/src/lib/auth.ts
+package-lock.json
+package.json

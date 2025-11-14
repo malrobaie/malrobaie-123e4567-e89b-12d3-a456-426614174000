@@ -2,19 +2,27 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["node"],
-    "rootDir": "src",
+    "rootDir": "../",
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "es2021"
+    "target": "es2021",
+    "composite": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../data/src/**/*.ts",
+    "../auth/src/**/*.ts"
+  ],
   "exclude": [
     "out-tsc",
     "dist",
     "jest.config.ts",
-    "jest.config.cts",
+    "jest.config.cjs",
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "eslint.config.js",

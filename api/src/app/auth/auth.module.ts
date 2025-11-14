@@ -1,16 +1,24 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-
-import { TasksModule } from '../tasks/tasks.module';
-import { TasksService } from '../tasks/tasks.service';
-import { TasksController } from '../tasks/tasks.controller';
-
+import { UsersModule } from '../users/users.module';
 import { AuditModule } from '../audit/audit.module';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
-  providers: [AuthService, TasksService],
-  controllers: [AuthController, TasksController],
-  imports: [TasksModule, AuditModule],
+  imports: [
+    UsersModule,
+    AuditModule,
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'super-secret-jwt-key',
+      signOptions: { expiresIn: '1d' },
+    }),
+  ],
+  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController],
+  exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
