@@ -1,9 +1,17 @@
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
   category?: string | null;
   status?: string | null;
+  sortOrder?: number;
+  checklist?: ChecklistItem[];
   createdAt: string;
   updatedAt: string;
   createdBy?: {
@@ -25,6 +33,7 @@ export interface CreateTaskDto {
   description?: string;
   category?: string;
   status?: string;
+  checklist?: ChecklistItem[];
   assigneeId?: string;
 }
 
@@ -33,6 +42,8 @@ export interface UpdateTaskDto {
   description?: string;
   category?: string;
   status?: string;
+  sortOrder?: number;
+  checklist?: ChecklistItem[];
   assigneeId?: string;
 }
 

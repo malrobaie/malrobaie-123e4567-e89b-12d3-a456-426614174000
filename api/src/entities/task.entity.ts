@@ -24,6 +24,15 @@ export class Task {
     @Column({ type: 'text', nullable: true })
     category!: string | null;
 
+    @Column({ type: 'integer', default: 0 })
+    sortOrder!: number;
+
+    @Column({ type: 'text', nullable: true })
+    status!: string | null;
+
+    @Column({ type: 'json', nullable: true })
+    checklist!: Array<{ id: string; text: string; completed: boolean }> | null;
+
     // Use lazy-loaded function references to avoid ESM "Cannot access 'User' before initialization"
     @ManyToOne(() => require('./user.entity').User, (user: any) => user.createdTasks, {
         onDelete: 'CASCADE',

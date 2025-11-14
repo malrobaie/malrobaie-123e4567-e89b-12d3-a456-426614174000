@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  */
 import 'reflect-metadata';
+import { randomUUID } from 'crypto';
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -102,25 +103,44 @@ async function seed(dataSource: DataSource) {
       title: 'Complete Q4 Report',
       description: 'Finalize quarterly financial report',
       category: 'Work',
+      status: 'todo',
       organization: techCorp,
       createdBy: adminUser,
       assignee: adminUser,
+      checklist: [
+        { id: randomUUID(), text: 'Gather financial data', completed: true },
+        { id: randomUUID(), text: 'Create charts and graphs', completed: true },
+        { id: randomUUID(), text: 'Write summary', completed: false },
+        { id: randomUUID(), text: 'Get approval from CFO', completed: false },
+      ],
     },
     {
       title: 'Review Sales Pipeline',
       description: 'Analyze sales opportunities for next quarter',
       category: 'Work',
+      status: 'in-progress',
       organization: techCorpSales,
       createdBy: adminUser,
       assignee: viewerUser,
+      checklist: [
+        { id: randomUUID(), text: 'Review Q3 performance', completed: true },
+        { id: randomUUID(), text: 'Identify top prospects', completed: false },
+        { id: randomUUID(), text: 'Schedule follow-ups', completed: false },
+      ],
     },
     {
       title: 'Team Building Event',
       description: 'Organize team building activity',
       category: 'Personal',
+      status: 'done',
       organization: techCorp,
       createdBy: ownerUser,
       assignee: null,
+      checklist: [
+        { id: randomUUID(), text: 'Book venue', completed: true },
+        { id: randomUUID(), text: 'Send invitations', completed: true },
+        { id: randomUUID(), text: 'Arrange catering', completed: true },
+      ],
     },
   ]);
 

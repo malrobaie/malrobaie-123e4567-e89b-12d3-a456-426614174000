@@ -1,15 +1,17 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 import { TaskFormComponent } from '../../components/task-form/task-form.component';
 import { Task, CreateTaskDto, UpdateTaskDto } from '../../models/task.model';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TaskFormComponent],
+  imports: [CommonModule, FormsModule, TaskFormComponent, DragDropModule],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css'
 })
@@ -22,7 +24,8 @@ export class TaskListComponent implements OnInit {
 
   constructor(
     public taskService: TaskService,
-    public authService: AuthService
+    public authService: AuthService,
+    public themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +45,7 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  filteredAndSortedTasks = computed(() => {
+  filteredTasks = computed(() => {
     let tasks = this.taskService.tasks();
     
     // Filter by category
@@ -51,19 +54,28 @@ export class TaskListComponent implements OnInit {
       tasks = tasks.filter(t => t.category === category);
     }
     
-    // Sort
-    const sortBy = this.sortBy();
-    return [...tasks].sort((a, b) => {
-      switch (sortBy) {
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'category':
-          return (a.category || '').localeCompare(b.category || '');
-        case 'date':
-        default:
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-    });
+    return tasks;
+  });
+
+  todoTasks = computed(() => {
+    const tasks = this.filteredTasks();
+    return tasks
+      .filter(t => !t.status || t.status === 'todo' || t.status === 'pending')
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  });
+
+  inProgressTasks = computed(() => {
+    const tasks = this.filteredTasks();
+    return tasks
+      .filter(t => t.status === 'in-progress')
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  });
+
+  doneTasks = computed(() => {
+    const tasks = this.filteredTasks();
+    return tasks
+      .filter(t => t.status === 'done' || t.status === 'completed')
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   });
 
   categories = computed(() => {
@@ -94,6 +106,7 @@ export class TaskListComponent implements OnInit {
       // Update existing task
       this.taskService.updateTask(editingTask.id, taskData as UpdateTaskDto).subscribe({
         next: () => {
+          this.loadTasks(); // Reload tasks to get updated data
           this.closeForm();
         },
         error: (error) => {
@@ -105,6 +118,7 @@ export class TaskListComponent implements OnInit {
       // Create new task
       this.taskService.createTask(taskData as CreateTaskDto).subscribe({
         next: () => {
+          this.loadTasks(); // Reload tasks to show new task
           this.closeForm();
         },
         error: (error) => {
@@ -138,6 +152,74 @@ export class TaskListComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  onDrop(event: CdkDragDrop<Task[]>, newStatus: string): void {
+    const task = event.item.data as Task;
+    
+    if (event.previousContainer === event.container) {
+      // Reorder within same column
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      
+      // Update sortOrder for all tasks in this column
+      event.container.data.forEach((t, index) => {
+        this.taskService.updateTask(t.id, { sortOrder: index }).subscribe();
+      });
+    } else {
+      // Move between columns (status change)
+      // Update status and sortOrder on backend first
+      this.taskService.updateTask(task.id, { 
+        status: newStatus,
+        sortOrder: event.currentIndex
+      }).subscribe({
+        next: () => {
+          // Reload all tasks to reflect changes
+          this.loadTasks();
+        },
+        error: (error) => {
+          console.error('Error updating task:', error);
+          alert('Failed to move task');
+          // Reload to revert changes
+          this.loadTasks();
+        }
+      });
+    }
+  }
+
+  getCompletionPercentage(task: Task): number {
+    if (!task.checklist || task.checklist.length === 0) {
+      return 0;
+    }
+    const completed = task.checklist.filter(item => item.completed).length;
+    return (completed / task.checklist.length) * 100;
+  }
+
+  getCompletedCount(task: Task): number {
+    if (!task.checklist) {
+      return 0;
+    }
+    return task.checklist.filter(item => item.completed).length;
+  }
+
+  toggleChecklistItem(task: Task, itemId: string): void {
+    if (!task.checklist) {
+      return;
+    }
+
+    const updatedChecklist = task.checklist.map(item =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
+
+    this.taskService.updateTask(task.id, { checklist: updatedChecklist }).subscribe({
+      next: () => {
+        // Update the local task to trigger UI update
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error updating checklist:', error);
+        alert('Failed to update checklist');
+      }
+    });
   }
 }
 
