@@ -1,0 +1,76 @@
+<div class="modal-overlay" (click)="onCancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ task ? 'Edit Task' : 'Create New Task' }}</h2>
+      <button class="close-btn" (click)="onCancel()">&times;</button>
+    </div>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input 
+          type="text" 
+          id="title" 
+          formControlName="title"
+          placeholder="Enter task title"
+          [class.error]="title?.invalid && title?.touched"
+        />
+        @if (title?.invalid && title?.touched) {
+          <span class="error-text">
+            @if (title?.errors?.['required']) {
+              Title is required
+            }
+            @if (title?.errors?.['minlength']) {
+              Title must be at least 3 characters
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          formControlName="description"
+          placeholder="Enter task description (optional)"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" formControlName="category">
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Meeting">Meeting</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="onCancel()">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn-save"
+          [disabled]="taskForm.invalid || isSubmitting()"
+        >
+          {{ isSubmitting() ? 'Saving...' : (task ? 'Update Task' : 'Create Task') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

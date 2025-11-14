@@ -154,14 +154,15 @@ export class TasksService {
         }
 
         const taskTitle = task.title;
-        await this.taskRepo.delete(id);
-
-        // Log task deletion
+        
+        // Log task deletion BEFORE deleting (to preserve FK reference)
         await this.auditService.logTaskDeletion(
             userId,
             userOrgId,
             id,
             taskTitle,
         );
+
+        await this.taskRepo.delete(id);
     }
 }

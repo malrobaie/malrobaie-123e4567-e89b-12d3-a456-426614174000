@@ -1,0 +1,126 @@
+<div class="layout">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <h1>📋 Task Management</h1>
+      <div class="header-right">
+        @if (authService.currentUser(); as user) {
+          <div class="user-info">
+            <span class="user-email">{{ user.email }}</span>
+            <span class="role-badge" [class]="'role-' + user.role">
+              {{ user.role }}
+            </span>
+          </div>
+        }
+        <button class="btn-logout" (click)="logout()">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="filter-group">
+          <label>Category:</label>
+          <select [(ngModel)]="selectedCategory" (change)="selectedCategory.set($any($event.target).value)">
+            @for (cat of categories(); track cat) {
+              <option [value]="cat">
+                {{ cat === 'all' ? 'All Categories' : cat }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Sort by:</label>
+          <select [(ngModel)]="sortBy" (change)="sortBy.set($any($event.target).value)">
+            <option value="date">Date (Newest)</option>
+            <option value="title">Title (A-Z)</option>
+            <option value="category">Category</option>
+          </select>
+        </div>
+      </div>
+
+      @if (authService.isAdmin()) {
+        <button class="btn-create" (click)="openCreateForm()">
+          + Create Task
+        </button>
+      }
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading tasks...</p>
+      </div>
+    }
+
+    <!-- Task Grid -->
+    @if (!isLoading()) {
+      @if (filteredAndSortedTasks().length === 0) {
+        <div class="empty-state">
+          <p>No tasks found</p>
+          @if (authService.isAdmin()) {
+            <button class="btn-create" (click)="openCreateForm()">
+              Create your first task
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="task-grid">
+          @for (task of filteredAndSortedTasks(); track task.id) {
+            <div class="task-card">
+              <div class="task-header">
+                <h3>{{ task.title }}</h3>
+                @if (task.status) {
+                  <span class="status-badge" [class]="getStatusBadgeClass(task.status)">
+                    {{ task.status }}
+                  </span>
+                }
+              </div>
+
+              @if (task.description) {
+                <p class="task-description">{{ task.description }}</p>
+              }
+
+              <div class="task-meta">
+                @if (task.category) {
+                  <span class="category-tag">🏷️ {{ task.category }}</span>
+                }
+                @if (task.createdBy?.displayName) {
+                  <span class="creator">👤 {{ task.createdBy?.displayName }}</span>
+                }
+              </div>
+
+              @if (authService.isAdmin()) {
+                <div class="task-actions">
+                  <button class="btn-edit" (click)="openEditForm(task)">
+                    Edit
+                  </button>
+                  <button class="btn-delete" (click)="deleteTask(task)">
+                    Delete
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </main>
+
+  <!-- Task Form Modal -->
+  @if (showForm()) {
+    <app-task-form
+      [task]="editingTask()"
+      (save)="onSaveTask($event)"
+      (cancel)="closeForm()"
+    ></app-task-form>
+  }
+</div>
+
