@@ -4,16 +4,7 @@ import { RolesGuard, RequireRole } from '../auth/roles.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditService } from './audit.service';
 import { Role } from '@turbovets-task-manager/data';
-
-interface AuthenticatedUser {
-    id: string;
-    email: string;
-    memberships?: Array<{
-        organization?: {
-            id: string;
-        };
-    }>;
-}
+import type { AuthenticatedUser } from '../auth/types';
 
 @Controller('audit-log')
 @UseGuards(JwtAuthGuard, RolesGuard)

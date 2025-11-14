@@ -133,6 +133,12 @@ async function seed(dataSource: DataSource) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable CORS for frontend
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    credentials: true,
+  });
+
   // Access the TypeORM data source from Nest
   const dataSource = app.get(DataSource);
 

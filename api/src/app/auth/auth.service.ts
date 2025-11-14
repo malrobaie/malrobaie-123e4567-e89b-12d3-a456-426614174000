@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
+import type { AuthenticatedUser } from './types';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
         return user;
     }
 
-    async login(user: any) {
+    async login(user: AuthenticatedUser) {
         // Get the user's primary membership (first one, or you could add logic to determine primary)
         const membership = user.memberships?.[0];
         const role = membership?.role || 'viewer';
