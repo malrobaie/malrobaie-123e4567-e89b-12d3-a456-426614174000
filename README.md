@@ -39,10 +39,10 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 
 ### Testing
 
-- ✅ **29 Passing Tests** - Comprehensive unit test coverage
-- ✅ **RBAC Logic Tests** - Role hierarchy and permission checks
-- ✅ **Authentication Tests** - JWT generation and validation
-- ✅ **Service Tests** - Tasks, Audit, Organization scoping
+- ✅ **48 Total Passing Tests** - Backend: 29 tests, Frontend: 19 tests
+- ✅ **Backend Tests** - RBAC, JWT auth, tasks service, audit logging
+- ✅ **Frontend Tests** - Authentication, task CRUD, component logic
+- ✅ **Comprehensive Coverage** - All critical business logic tested
 
 ---
 
@@ -122,6 +122,7 @@ NODE_ENV=development
 ### 3. Run the Backend API
 
 **Terminal 1:**
+
 ```bash
 # Development mode with hot-reload
 npx nx serve api
@@ -136,6 +137,7 @@ The API will be available at: **http://localhost:3000/api**
 ### 4. Run the Frontend Dashboard
 
 **Terminal 2:**
+
 ```bash
 npx nx serve dashboard
 ```
@@ -143,6 +145,7 @@ npx nx serve dashboard
 The dashboard will be available at: **http://localhost:4200**
 
 **Quick Start:**
+
 1. Start both backend (Terminal 1) and frontend (Terminal 2)
 2. Navigate to `http://localhost:4200`
 3. Login with: `admin@techcorp.com` / `password123`
@@ -171,6 +174,8 @@ The application automatically seeds the database on first run with complete demo
 
 ### 6. Run Tests
 
+**Backend Tests (29 tests):**
+
 ```bash
 # Run all backend tests
 npx nx test api
@@ -180,6 +185,25 @@ npx nx test api --testPathPattern="auth.service.spec"
 
 # Test with coverage
 npx nx test api --coverage
+```
+
+**Frontend Tests (19 tests):**
+
+```bash
+# Run all frontend tests
+npx nx test dashboard
+
+# Run specific test file
+npx nx test dashboard --testPathPattern="auth.service.spec"
+
+# Test with coverage
+npx nx test dashboard --coverage
+```
+
+**Run All Tests:**
+
+```bash
+npx nx run-many --target=test --all
 ```
 
 ---

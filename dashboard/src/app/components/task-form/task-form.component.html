@@ -1,22 +1,26 @@
-<div class="modal-overlay" (click)="onCancel()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ task ? 'Edit Task' : 'Create New Task' }}</h2>
-      <button class="close-btn" (click)="onCancel()">&times;</button>
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" (click)="onCancel()">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h2 class="text-2xl font-bold text-gray-900">{{ task ? 'Edit Task' : 'Create New Task' }}</h2>
+      <button 
+        class="text-gray-400 hover:text-gray-600 text-3xl leading-none w-8 h-8"
+        (click)="onCancel()">&times;</button>
     </div>
 
-    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="title">Title *</label>
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="p-6">
+      <div class="mb-5">
+        <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
         <input 
           type="text" 
           id="title" 
           formControlName="title"
           placeholder="Enter task title"
-          [class.error]="title?.invalid && title?.touched"
+          class="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+          [class.border-red-400]="title?.invalid && title?.touched"
+          [class.border-gray-300]="!(title?.invalid && title?.touched)"
         />
         @if (title?.invalid && title?.touched) {
-          <span class="error-text">
+          <span class="text-red-600 text-xs mt-1 block">
             @if (title?.errors?.['required']) {
               Title is required
             }
@@ -27,20 +31,24 @@
         }
       </div>
 
-      <div class="form-group">
-        <label for="description">Description</label>
+      <div class="mb-5">
+        <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
         <textarea 
           id="description" 
           formControlName="description"
           placeholder="Enter task description (optional)"
           rows="4"
+          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-vertical"
         ></textarea>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="category">Category</label>
-          <select id="category" formControlName="category">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+          <select 
+            id="category" 
+            formControlName="category"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Urgent">Urgent</option>
@@ -48,9 +56,12 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" formControlName="status">
+        <div>
+          <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+          <select 
+            id="status" 
+            formControlName="status"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
@@ -58,19 +69,20 @@
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="onCancel()">
+      <div class="flex gap-3 pt-6 border-t border-gray-200">
+        <button 
+          type="button" 
+          class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors"
+          (click)="onCancel()">
           Cancel
         </button>
         <button 
           type="submit" 
-          class="btn-save"
-          [disabled]="taskForm.invalid || isSubmitting()"
-        >
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-semibold rounded-lg hover:shadow-lg hover:-translate-y-0.5 transform transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          [disabled]="taskForm.invalid || isSubmitting()">
           {{ isSubmitting() ? 'Saving...' : (task ? 'Update Task' : 'Create Task') }}
         </button>
       </div>
     </form>
   </div>
 </div>
-
