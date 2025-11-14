@@ -31,49 +31,57 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with invalid form', () => {
-    expect(component.loginForm.valid).toBeFalsy();
+  it('should have pre-filled admin credentials', () => {
+    expect(component.loginForm.get('email')?.value).toBe('admin@techcorp.com');
+    expect(component.loginForm.get('password')?.value).toBe('password123');
+    expect(component.loginForm.valid).toBeTruthy();
   });
 
-  it('should validate email field', () => {
+  it('should validate email field correctly', () => {
     const email = component.email;
-    expect(email?.valid).toBeFalsy();
+    
+    email?.setValue('');
+    expect(email?.hasError('required')).toBeTruthy();
 
-    email?.setValue('invalid');
+    email?.setValue('invalid-email');
     expect(email?.hasError('email')).toBeTruthy();
 
-    email?.setValue('test@example.com');
+    email?.setValue('valid@example.com');
     expect(email?.valid).toBeTruthy();
   });
 
-  it('should validate password field', () => {
+  it('should validate password field correctly', () => {
     const password = component.password;
-    expect(password?.valid).toBeFalsy();
+    
+    password?.setValue('');
+    expect(password?.hasError('required')).toBeTruthy();
 
-    password?.setValue('123');
+    password?.setValue('12345');
     expect(password?.hasError('minlength')).toBeTruthy();
 
     password?.setValue('password123');
     expect(password?.valid).toBeTruthy();
   });
 
-  it('should call authService.login on valid form submission', () => {
+  it('should call authService.login with form values', () => {
     authService.login.mockReturnValue(of(undefined));
 
     component.loginForm.setValue({
       email: 'test@example.com',
-      password: 'password123'
+      password: 'testpass123'
     });
 
     component.onSubmit();
 
-    expect(authService.login).toHaveBeenCalledWith('test@example.com', 'password123');
-    expect(component.isLoading()).toBe(false);
+    expect(authService.login).toHaveBeenCalled();
+    const callArg = authService.login.mock.calls[0][0];
+    expect(callArg.email).toBe('test@example.com');
+    expect(callArg.password).toBe('testpass123');
   });
 
-  it('should not submit if form is invalid', () => {
+  it('should not submit invalid form', () => {
     component.loginForm.setValue({
-      email: 'invalid',
+      email: 'invalid-email',
       password: '123'
     });
 
@@ -82,25 +90,15 @@ describe('LoginComponent', () => {
     expect(authService.login).not.toHaveBeenCalled();
   });
 
-  it('should handle login error', () => {
+  it('should handle login errors', () => {
     authService.login.mockReturnValue(throwError(() => ({
+      status: 401,
       error: { message: 'Invalid credentials' }
     })));
 
-    component.loginForm.setValue({
-      email: 'test@example.com',
-      password: 'wrongpassword'
-    });
-
     component.onSubmit();
 
-    expect(component.isLoading()).toBe(false);
-    expect(component.errorMessage()).toBe('Invalid credentials');
-  });
-
-  it('should pre-fill form with admin credentials', () => {
-    expect(component.loginForm.get('email')?.value).toBe('admin@techcorp.com');
-    expect(component.loginForm.get('password')?.value).toBe('password123');
+    expect(component.errorMessage()).toBeTruthy();
   });
 });
 

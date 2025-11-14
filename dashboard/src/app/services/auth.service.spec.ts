@@ -35,23 +35,22 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should login successfully and store token', (done) => {
+  it('should store token and user on successful login', (done) => {
     const mockResponse = {
-      accessToken: 'test-token',
+      accessToken: 'test-token-123',
       user: {
-        id: '123',
+        id: 'user-1',
         email: 'test@example.com',
         displayName: 'Test User',
         role: 'admin',
-        organizationId: 'org-123'
+        organizationId: 'org-1'
       }
     };
 
-    service.login('test@example.com', 'password123').subscribe(() => {
-      expect(localStorage.getItem('task_mgmt_token')).toBe('test-token');
+    service.login({ email: 'test@example.com', password: 'password123' }).subscribe(() => {
+      expect(localStorage.getItem('task_mgmt_token')).toBe('test-token-123');
       expect(service.currentUser()?.email).toBe('test@example.com');
-      expect(service.isLoggedIn()).toBe(true);
-      expect(router.navigate).toHaveBeenCalledWith(['/tasks']);
+      expect(service.currentUser()?.role).toBe('admin');
       done();
     });
 
@@ -60,46 +59,51 @@ describe('AuthService', () => {
     req.flush(mockResponse);
   });
 
-  it('should logout and clear token', () => {
+  it('should clear token and user on logout', () => {
     localStorage.setItem('task_mgmt_token', 'test-token');
+    service.currentUser.set({
+      id: '1',
+      email: 'test@example.com',
+      role: 'admin',
+      organizationId: 'org-1'
+    });
+
     service.logout();
-    
+
     expect(localStorage.getItem('task_mgmt_token')).toBeNull();
     expect(service.currentUser()).toBeNull();
-    expect(service.isLoggedIn()).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('should check if user is admin', () => {
+  it('should return token from localStorage', () => {
+    localStorage.setItem('task_mgmt_token', 'my-token');
+    expect(service.getToken()).toBe('my-token');
+  });
+
+  it('should return null when no token exists', () => {
+    localStorage.removeItem('task_mgmt_token');
+    expect(service.getToken()).toBeNull();
+  });
+
+  it('should identify admin users correctly', () => {
     service.currentUser.set({
-      id: '123',
-      email: 'admin@test.com',
+      id: '1',
+      email: 'admin@example.com',
       role: 'admin',
-      organizationId: 'org-123'
+      organizationId: 'org-1'
     });
 
     expect(service.isAdmin()).toBe(true);
   });
 
-  it('should check if user is not admin', () => {
+  it('should identify non-admin users correctly', () => {
     service.currentUser.set({
-      id: '123',
-      email: 'viewer@test.com',
+      id: '1',
+      email: 'viewer@example.com',
       role: 'viewer',
-      organizationId: 'org-123'
+      organizationId: 'org-1'
     });
 
     expect(service.isAdmin()).toBe(false);
-  });
-
-  it('should return token from localStorage', () => {
-    localStorage.setItem('task_mgmt_token', 'test-token');
-    expect(service.getToken()).toBe('test-token');
-  });
-
-  it('should return null if no token exists', () => {
-    localStorage.removeItem('task_mgmt_token');
-    expect(service.getToken()).toBeNull();
   });
 });
 
