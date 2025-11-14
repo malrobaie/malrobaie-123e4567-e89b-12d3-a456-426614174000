@@ -53,7 +53,7 @@ export class AuditService {
     /**
      * Find audit logs for an organization (including child orgs for 2-level hierarchy)
      */
-    async findByOrganization(organizationId: string, limit: number = 100): Promise<AuditLog[]> {
+    async findByOrganization(organizationId: string, limit = 100): Promise<AuditLog[]> {
         const accessibleOrgIds = await this.getAccessibleOrganizationIds(organizationId);
         
         return this.auditLogRepo.find({

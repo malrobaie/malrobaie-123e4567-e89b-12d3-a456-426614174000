@@ -5,6 +5,16 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditService } from './audit.service';
 import { Role } from '@turbovets-task-manager/data';
 
+interface AuthenticatedUser {
+    id: string;
+    email: string;
+    memberships?: Array<{
+        organization?: {
+            id: string;
+        };
+    }>;
+}
+
 @Controller('audit-log')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AuditController {
@@ -13,7 +23,7 @@ export class AuditController {
     @Get()
     @RequireRole(Role.ADMIN, Role.OWNER)
     async getAuditLogs(
-        @CurrentUser() user: any,
+        @CurrentUser() user: AuthenticatedUser,
         @Query('limit') limit?: string,
     ) {
         // Only Admin+ can view audit logs

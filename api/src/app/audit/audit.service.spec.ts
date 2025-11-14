@@ -38,9 +38,9 @@ describe('AuditService - Audit Logging Tests', () => {
 
   describe('logLogin', () => {
     it('should create login audit log', async () => {
-      const mockLog = { id: 'log-1', action: 'login' };
-      auditRepo.create.mockReturnValue(mockLog as any);
-      auditRepo.save.mockResolvedValue(mockLog as any);
+      const mockLog = { id: 'log-1', action: 'login' } as AuditLog;
+      auditRepo.create.mockReturnValue(mockLog);
+      auditRepo.save.mockResolvedValue(mockLog);
 
       await service.logLogin('user-123', 'org-123');
 
@@ -56,9 +56,9 @@ describe('AuditService - Audit Logging Tests', () => {
 
   describe('logTaskCreation', () => {
     it('should create task creation audit log', async () => {
-      const mockLog = { id: 'log-1', action: 'create_task' };
-      auditRepo.create.mockReturnValue(mockLog as any);
-      auditRepo.save.mockResolvedValue(mockLog as any);
+      const mockLog = { id: 'log-1', action: 'create_task' } as AuditLog;
+      auditRepo.create.mockReturnValue(mockLog);
+      auditRepo.save.mockResolvedValue(mockLog);
 
       await service.logTaskCreation('user-123', 'org-123', 'task-123', 'Test Task');
 
@@ -74,9 +74,9 @@ describe('AuditService - Audit Logging Tests', () => {
 
   describe('logTaskUpdate', () => {
     it('should create task update audit log', async () => {
-      const mockLog = { id: 'log-1', action: 'update_task' };
-      auditRepo.create.mockReturnValue(mockLog as any);
-      auditRepo.save.mockResolvedValue(mockLog as any);
+      const mockLog = { id: 'log-1', action: 'update_task' } as AuditLog;
+      auditRepo.create.mockReturnValue(mockLog);
+      auditRepo.save.mockResolvedValue(mockLog);
 
       await service.logTaskUpdate('user-123', 'org-123', 'task-123', { title: 'Updated' });
 
@@ -92,9 +92,9 @@ describe('AuditService - Audit Logging Tests', () => {
 
   describe('logTaskDeletion', () => {
     it('should create task deletion audit log', async () => {
-      const mockLog = { id: 'log-1', action: 'delete_task' };
-      auditRepo.create.mockReturnValue(mockLog as any);
-      auditRepo.save.mockResolvedValue(mockLog as any);
+      const mockLog = { id: 'log-1', action: 'delete_task' } as AuditLog;
+      auditRepo.create.mockReturnValue(mockLog);
+      auditRepo.save.mockResolvedValue(mockLog);
 
       await service.logTaskDeletion('user-123', 'org-123', 'task-123', 'Test Task');
 
@@ -113,11 +113,11 @@ describe('AuditService - Audit Logging Tests', () => {
       const mockChildOrgs = [
         { id: 'child-org-1', parentId: 'org-123' },
         { id: 'child-org-2', parentId: 'org-123' },
-      ];
-      const mockLogs = [{ id: 'log-1', action: 'login' }];
+      ] as Organization[];
+      const mockLogs = [{ id: 'log-1', action: 'login' }] as AuditLog[];
 
-      orgRepo.find.mockResolvedValue(mockChildOrgs as any);
-      auditRepo.find.mockResolvedValue(mockLogs as any);
+      orgRepo.find.mockResolvedValue(mockChildOrgs);
+      auditRepo.find.mockResolvedValue(mockLogs);
 
       const result = await service.findByOrganization('org-123');
 
