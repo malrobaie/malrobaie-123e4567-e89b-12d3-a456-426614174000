@@ -387,17 +387,6 @@ List all tasks accessible to the user (their org + child orgs).
 ]
 ```
 
-#### `GET /tasks/:id`
-
-Get a single task by ID.
-
-**Authorization:** All authenticated users (must be in accessible org)
-
-**Response:** Same as single task object above
-
-**Errors:**
-- `404 Not Found` - Task doesn't exist or not in accessible org
-
 #### `POST /tasks`
 
 Create a new task.
@@ -416,7 +405,7 @@ Create a new task.
 
 **Response:** Created task object
 
-#### `PATCH /tasks/:id`
+#### `PUT /tasks/:id`
 
 Update an existing task.
 
