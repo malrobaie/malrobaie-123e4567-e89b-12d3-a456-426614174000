@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -18,6 +19,18 @@ export class Organization {
 
   @Column({ unique: true })
   name!: string;
+
+  @Column({ type: 'text', nullable: true })
+  parentId!: string | null;
+
+  @ManyToOne(() => require('./organization.entity').Organization, (org: any) => org.children, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  parent!: any | null;
+
+  @OneToMany(() => require('./organization.entity').Organization, (org: any) => org.parent)
+  children!: any[];
 
   @OneToMany(() => require('./user.entity').User, (user: any) => user.organization)
   users!: any[];

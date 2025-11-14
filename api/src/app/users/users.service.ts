@@ -18,8 +18,24 @@ export class UsersService {
         return this.usersRepo.findOne({ where: { id } });
     }
 
+    async findOneWithMembership(id: string) {
+        const user = await this.usersRepo.findOne({
+            where: { id },
+            relations: ['memberships', 'memberships.organization'],
+        });
+        return user;
+    }
+
     findByEmail(email: string) {
         return this.usersRepo.findOne({ where: { email } });
+    }
+
+    async findByEmailWithMembership(email: string) {
+        const user = await this.usersRepo.findOne({
+            where: { email },
+            relations: ['memberships', 'memberships.organization'],
+        });
+        return user;
     }
 
     async create(data: Partial<User>) {

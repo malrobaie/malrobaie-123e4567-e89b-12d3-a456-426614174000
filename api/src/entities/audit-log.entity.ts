@@ -14,7 +14,8 @@ export type AuditAction =
     | 'login'
     | 'create_task'
     | 'update_task'
-    | 'delete_task';
+    | 'delete_task'
+    | 'permission_denied';
 
 @Entity('audit_logs')
 export class AuditLog {
