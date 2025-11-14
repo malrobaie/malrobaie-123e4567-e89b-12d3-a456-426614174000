@@ -116,17 +116,23 @@ The API will be available at: **http://localhost:3000/api**
 
 ### 4. Database Seeding
 
-The application automatically seeds the database on first run with basic test users.
+The application automatically seeds the database on first run with complete demo data.
+
+**Seeded Data:**
+- **3 Organizations:** TechCorp (parent), TechCorp Sales (child), FinanceInc  
+- **4 Users** with roles and memberships
+- **3 Sample tasks** demonstrating org hierarchy
 
 **Test Users:**
 
-| Email | Password |
-|-------|----------|
-| owner@example.com | password123 |
-| admin@example.com | password123 |
-| viewer@example.com | password123 |
+| Email | Password | Role | Organization |
+|-------|----------|------|--------------|
+| owner@techcorp.com | password123 | Owner | TechCorp |
+| admin@techcorp.com | password123 | Admin | TechCorp |
+| viewer@techcorp.com | password123 | Viewer | TechCorp |
+| admin@finance.com | password123 | Admin | FinanceInc |
 
-**Note:** Seeded users are created without organizations/memberships for simplicity. All RBAC, organization scoping, and audit logging functionality is thoroughly tested in the test suite (29 passing tests with 100% coverage of critical services).
+**Demo Note:** Admin users at TechCorp can see tasks from both TechCorp AND TechCorp Sales (2-level hierarchy in action!).
 
 ### 5. Run Tests
 
