@@ -119,37 +119,61 @@ PORT=3000
 NODE_ENV=development
 ```
 
-### 3. Run the Backend API
+### 3. Build & Run the Backend API
 
-**Terminal 1:**
+**Terminal 1 - Backend:**
 
 ```bash
-# Development mode with hot-reload
-npx nx serve api
-
-# Production build
+# Step 1: Build the API
 npx nx build api
-node dist/apps/api/main.js
+
+# Step 2: Serve the API (development mode with hot-reload)
+npx nx serve api
 ```
 
 The API will be available at: **http://localhost:3000/api**
 
-### 4. Run the Frontend Dashboard
+**Production Build:**
+```bash
+npx nx build api
+node dist/apps/api/main.js
+```
 
-**Terminal 2:**
+### 4. Build & Run the Frontend Dashboard
+
+**Terminal 2 - Frontend:**
 
 ```bash
+# Step 1: Build the dashboard
+npx nx build dashboard
+
+# Step 2: Serve the dashboard (development mode with hot-reload)
 npx nx serve dashboard
 ```
 
 The dashboard will be available at: **http://localhost:4200**
 
-**Quick Start:**
+### 🎯 Quick Start Guide
 
-1. Start both backend (Terminal 1) and frontend (Terminal 2)
-2. Navigate to `http://localhost:4200`
-3. Login with: `admin@techcorp.com` / `password123`
-4. Create, edit, filter, and manage tasks!
+1. **Open Terminal 1** → Run backend:
+   ```bash
+   npx nx serve api
+   ```
+   ✅ Wait for: `🚀 Application is running on: http://localhost:3000/api`
+
+2. **Open Terminal 2** → Run frontend:
+   ```bash
+   npx nx serve dashboard
+   ```
+   ✅ Wait for: `Application bundle generation complete`
+
+3. **Open Browser** → Navigate to: `http://localhost:4200`
+
+4. **Login** with demo credentials:
+   - **Email:** `admin@techcorp.com`
+   - **Password:** `password123`
+
+5. **Start managing tasks!** ✨
 
 ### 5. Database Seeding
 
