@@ -538,6 +538,194 @@ npx nx test api --watch
 npx nx test api --coverage
 ```
 
+### Manual API Testing (PowerShell)
+
+Below are step-by-step commands to test all API endpoints. These examples use PowerShell (Windows) and `Invoke-WebRequest`.
+
+#### 1️⃣ Login & Get JWT Token
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/auth/login" `
+    -Method POST `
+    -ContentType "application/json" `
+    -Body '{"email":"admin@techcorp.com","password":"password123"}'
+
+$data = $response.Content | ConvertFrom-Json
+$token = $data.accessToken
+
+Write-Host "✅ Login successful!"
+Write-Host "User: $($data.user.email) | Role: $($data.user.role)"
+```
+
+**Expected Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "e02ddfd3-b482-4f91-8b12-bb96d464c17a",
+    "email": "admin@techcorp.com",
+    "role": "admin",
+    "organizationId": "88d1d365-d7c3-4685-99dc-c3ab36ed5262"
+  }
+}
+```
+
+#### 2️⃣ List All Tasks (GET /tasks)
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks" `
+    -Method GET `
+    -Headers @{Authorization="Bearer $token"}
+
+$tasks = $response.Content | ConvertFrom-Json
+$tasks | Select-Object title, category, status | Format-Table
+```
+
+**Expected Response:**
+```
+title                 category status
+-----                 -------- ------
+Complete Q4 Report    Work     pending
+Review Sales Pipeline Work     in-progress
+Team Building Event   Personal completed
+```
+
+#### 3️⃣ Create a Task (POST /tasks)
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks" `
+    -Method POST `
+    -ContentType "application/json" `
+    -Headers @{Authorization="Bearer $token"} `
+    -Body '{"title":"API Test Task","description":"Testing API responses","category":"Work","status":"in-progress"}'
+
+$newTask = $response.Content | ConvertFrom-Json
+Write-Host "✅ Created task ID: $($newTask.id)"
+$taskId = $newTask.id
+```
+
+**Expected Response:**
+```json
+{
+  "id": "99fe22b7-a7e4-4ea3-b31a-215442ce7e94",
+  "title": "API Test Task",
+  "description": "Testing API responses",
+  "category": "Work",
+  "status": "in-progress",
+  "createdAt": "2025-11-14T09:42:01.234Z",
+  "updatedAt": "2025-11-14T09:42:01.234Z"
+}
+```
+
+#### 4️⃣ Update a Task (PUT /tasks/:id)
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks/$taskId" `
+    -Method PUT `
+    -ContentType "application/json" `
+    -Headers @{Authorization="Bearer $token"} `
+    -Body '{"title":"Updated Task Title","status":"completed"}'
+
+$updated = $response.Content | ConvertFrom-Json
+Write-Host "✅ Updated: $($updated.title) - Status: $($updated.status)"
+```
+
+**Expected Response:**
+```json
+{
+  "id": "99fe22b7-a7e4-4ea3-b31a-215442ce7e94",
+  "title": "Updated Task Title",
+  "description": "Testing API responses",
+  "category": "Work",
+  "status": "completed",
+  "updatedAt": "2025-11-14T09:42:06.789Z"
+}
+```
+
+#### 5️⃣ View Audit Logs (GET /audit-log)
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/audit-log" `
+    -Method GET `
+    -Headers @{Authorization="Bearer $token"}
+
+$audit = $response.Content | ConvertFrom-Json
+$audit.logs | Select-Object -First 5 action, userEmail, createdAt | Format-Table
+```
+
+**Expected Response:**
+```
+action      userEmail              createdAt
+------      ---------              ---------
+update_task admin@techcorp.com     2025-11-14T09:42:06.000Z
+create_task admin@techcorp.com     2025-11-14T09:42:01.000Z
+login       admin@techcorp.com     2025-11-14T09:41:50.000Z
+```
+
+#### 6️⃣ Delete a Task (DELETE /tasks/:id)
+
+```powershell
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks/$taskId" `
+    -Method DELETE `
+    -Headers @{Authorization="Bearer $token"}
+
+Write-Host "✅ Task deleted successfully (Status: $($response.StatusCode))"
+```
+
+**Expected Response:** HTTP 200 (empty body)
+
+#### 7️⃣ Test RBAC - Viewer Cannot Create
+
+```powershell
+# Login as Viewer
+$viewerResp = Invoke-WebRequest -Uri "http://localhost:3000/api/auth/login" `
+    -Method POST `
+    -ContentType "application/json" `
+    -Body '{"email":"viewer@techcorp.com","password":"password123"}'
+
+$viewerToken = ($viewerResp.Content | ConvertFrom-Json).accessToken
+
+# Try to create task (should fail with 403)
+try {
+    $fail = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks" `
+        -Method POST `
+        -ContentType "application/json" `
+        -Headers @{Authorization="Bearer $viewerToken"} `
+        -Body '{"title":"Should Fail"}'
+    
+    Write-Host "❌ FAILED: Viewer was able to create task!" -ForegroundColor Red
+} catch {
+    Write-Host "✅ RBAC working - Viewer blocked (403 Forbidden)" -ForegroundColor Green
+}
+```
+
+**Expected Response:**
+```
+403 Forbidden - {"statusCode":403,"message":"Forbidden resource","error":"Forbidden"}
+```
+
+#### 8️⃣ Test Organization Scoping
+
+```powershell
+# Login as FinanceInc admin (different org)
+$financeResp = Invoke-WebRequest -Uri "http://localhost:3000/api/auth/login" `
+    -Method POST `
+    -ContentType "application/json" `
+    -Body '{"email":"admin@finance.com","password":"password123"}'
+
+$financeToken = ($financeResp.Content | ConvertFrom-Json).accessToken
+
+# Get tasks (should only see FinanceInc tasks, not TechCorp tasks)
+$financeTasks = Invoke-WebRequest -Uri "http://localhost:3000/api/tasks" `
+    -Method GET `
+    -Headers @{Authorization="Bearer $financeToken"}
+
+$taskList = $financeTasks.Content | ConvertFrom-Json
+Write-Host "FinanceInc admin sees $($taskList.Count) tasks (should not include TechCorp tasks)"
+```
+
+**Expected Behavior:** Users from FinanceInc cannot see TechCorp tasks (organization scoping enforced).
+
 ---
 
 ## 🔮 Future Considerations
