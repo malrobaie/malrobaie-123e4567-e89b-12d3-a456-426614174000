@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "../dist/out-tsc",
     "declaration": true,
+    "composite": true,
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
@@ -13,3 +14,4 @@
     "src/**/*.test.ts"
   ]
 }
+

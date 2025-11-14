@@ -1,7 +1,11 @@
 // Reusable RBAC helpers that can be used by both
 // the NestJS backend and the Angular frontend.
 
+// Import Role as a real enum (value + type)
 import { Role } from '@turbovets-task-manager/data';
+
+// Re-export Role so other projects can import from '@turbovets-task-manager/auth'
+export { Role };
 
 export interface AuthenticatedUserContext {
   userId: string;

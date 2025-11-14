@@ -6,8 +6,9 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
-import { Organization } from './organization.entity';
+// Using string-based relations to avoid circular dependency issues
+// import { User } from './user.entity';
+// import { Organization } from './organization.entity';
 
 @Entity('tasks')
 export class Task {
@@ -20,19 +21,22 @@ export class Task {
     @Column({ type: 'text', nullable: true })
     description!: string | null;
 
-    @ManyToOne(() => User, (u: User) => u.createdTasks, { onDelete: 'CASCADE' })
-    createdBy!: User;
+    // Use lazy-loaded function references to avoid ESM "Cannot access 'User' before initialization"
+    @ManyToOne(() => require('./user.entity').User, (user: any) => user.createdTasks, {
+        onDelete: 'CASCADE',
+    })
+    createdBy!: any;
 
-    @ManyToOne(() => User, (u: User) => u.assignedTasks, {
+    @ManyToOne(() => require('./user.entity').User, (user: any) => user.assignedTasks, {
         nullable: true,
         onDelete: 'SET NULL',
     })
-    assignee!: User | null;
+    assignee!: any | null;
 
-    @ManyToOne(() => Organization, (org: Organization) => org, {
+    @ManyToOne(() => require('./organization.entity').Organization, (org: any) => org.tasks, {
         onDelete: 'CASCADE',
     })
-    organization!: Organization;
+    organization!: any;
 
     @CreateDateColumn()
     createdAt!: Date;
@@ -40,3 +44,4 @@ export class Task {
     @UpdateDateColumn()
     updatedAt!: Date;
 }
+

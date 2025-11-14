@@ -2,13 +2,15 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
+    ManyToOne,
     OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Membership } from './membership.entity';
-import { Task } from './task.entity';
-import { AuditLog } from './audit-log.entity';
+// Using string-based relations to avoid circular dependency issues
+// import { Organization } from './organization.entity';
+// import { Task } from './task.entity';
+// import { AuditLog } from './audit-log.entity';
 
 @Entity('users')
 export class User {
@@ -19,22 +21,28 @@ export class User {
     email!: string;
 
     @Column()
-    name!: string;
+    passwordHash!: string;
 
-    @Column({ default: true })
-    isActive!: boolean;
+    @Column({ type: 'text', nullable: true })
+    displayName!: string | null;
 
-    @OneToMany(() => Membership, (m: Membership) => m.user)
-    memberships!: Membership[];
+    @ManyToOne(() => require('./organization.entity').Organization, (org: any) => org.users, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    organization!: any | null;
 
-    @OneToMany(() => Task, (t: Task) => t.assignee)
-    assignedTasks!: Task[];
+    @OneToMany(() => require('./task.entity').Task, (task: any) => task.createdBy)
+    createdTasks!: any[];
 
-    @OneToMany(() => Task, (t: Task) => t.createdBy)
-    createdTasks!: Task[];
+    @OneToMany(() => require('./task.entity').Task, (task: any) => task.assignee)
+    assignedTasks!: any[];
 
-    @OneToMany(() => AuditLog, (log: AuditLog) => log.actor)
-    auditLogs!: AuditLog[];
+    @OneToMany(() => require('./audit-log.entity').AuditLog, (log: any) => log.user)
+    auditLogs!: any[];
+
+    @OneToMany(() => require('./membership.entity').Membership, (membership: any) => membership.user)
+    memberships!: any[];
 
     @CreateDateColumn()
     createdAt!: Date;
