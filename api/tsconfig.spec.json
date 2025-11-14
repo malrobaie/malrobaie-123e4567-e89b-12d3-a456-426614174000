@@ -7,11 +7,13 @@
       "node"
     ],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "isolatedModules": true
   },
   "include": [
     "jest.config.ts",
-    "jest.config.cts",
+    "jest.config.cjs",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts"

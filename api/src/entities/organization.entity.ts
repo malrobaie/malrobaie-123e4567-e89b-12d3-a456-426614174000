@@ -7,10 +7,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-// Using string-based relations to avoid circular dependency issues
-// import { User } from './user.entity';
-// import { Task } from './task.entity';
-// import { Membership } from './membership.entity';
+import { User } from './user.entity';
+import { Task } from './task.entity';
+import { Membership } from './membership.entity';
 
 @Entity('organizations')
 export class Organization {
@@ -20,26 +19,27 @@ export class Organization {
   @Column({ unique: true })
   name!: string;
 
+  // 2-level hierarchy: organizations can have a parent organization
   @Column({ type: 'text', nullable: true })
   parentId!: string | null;
 
-  @ManyToOne(() => require('./organization.entity').Organization, (org: any) => org.children, {
+  @ManyToOne(() => Organization, (org) => org.children, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  parent!: any | null;
+  parent!: Organization | null;
 
-  @OneToMany(() => require('./organization.entity').Organization, (org: any) => org.parent)
-  children!: any[];
+  @OneToMany(() => Organization, (org) => org.parent)
+  children!: Organization[];
 
-  @OneToMany(() => require('./user.entity').User, (user: any) => user.organization)
-  users!: any[];
+  @OneToMany(() => User, (user) => user.organization)
+  users!: User[];
 
-  @OneToMany(() => require('./task.entity').Task, (task: any) => task.organization)
-  tasks!: any[];
+  @OneToMany(() => Task, (task) => task.organization)
+  tasks!: Task[];
 
-  @OneToMany(() => require('./membership.entity').Membership, (membership: any) => membership.organization)
-  memberships!: any[];
+  @OneToMany(() => Membership, (membership) => membership.organization)
+  memberships!: Membership[];
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -47,4 +47,5 @@ export class Organization {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
 

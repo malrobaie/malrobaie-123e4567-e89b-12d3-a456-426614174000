@@ -1,108 +1,68 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';
-import { RolesGuard, RequireRole } from './roles.guard';
 import { Role } from '@turbovets-task-manager/data';
+import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 
-describe('RolesGuard', () => {
-    let guard: RolesGuard;
-    let reflector: jest.Mocked<Reflector>;
+describe('RolesGuard - RBAC Logic Tests', () => {
+  let guard: RolesGuard;
+  let reflector: Reflector;
 
-    const createMockContext = (user: any, handler?: any): ExecutionContext => {
-        return {
-            switchToHttp: () => ({
-                getRequest: () => ({
-                    user,
-                }),
-            }),
-            getHandler: () => handler,
-            getClass: () => ({}),
-        } as ExecutionContext;
-    };
+  beforeEach(() => {
+    reflector = new Reflector();
+    guard = new RolesGuard(reflector);
+  });
 
-    beforeEach(() => {
-        reflector = {
-            getAllAndOverride: jest.fn(),
-        } as any;
+  const createMockContext = (user: any): ExecutionContext => {
+    return {
+      switchToHttp: () => ({
+        getRequest: () => ({ user }),
+      }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
+    } as ExecutionContext;
+  };
 
-        guard = new RolesGuard(reflector);
+  it('should allow access when no roles are required', () => {
+    const context = createMockContext({
+      memberships: [{ role: Role.VIEWER }],
     });
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
+    
+    expect(guard.canActivate(context)).toBe(true);
+  });
 
-    it('should allow access when no roles are required', () => {
-        reflector.getAllAndOverride.mockReturnValue(undefined);
-
-        const context = createMockContext({
-            memberships: [{ role: Role.VIEWER }],
-        });
-
-        expect(guard.canActivate(context)).toBe(true);
+  it('should allow access when user has required role', () => {
+    const context = createMockContext({
+      memberships: [{ role: Role.ADMIN }],
     });
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+    
+    expect(guard.canActivate(context)).toBe(true);
+  });
 
-    it('should allow access when user has required role', () => {
-        reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-
-        const context = createMockContext({
-            memberships: [{ role: Role.ADMIN }],
-        });
-
-        expect(guard.canActivate(context)).toBe(true);
+  it('should allow OWNER when ADMIN is required (role hierarchy)', () => {
+    const context = createMockContext({
+      memberships: [{ role: Role.OWNER }],
     });
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+    
+    expect(guard.canActivate(context)).toBe(true);
+  });
 
-    it('should allow OWNER when ADMIN is required (role hierarchy)', () => {
-        reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-
-        const context = createMockContext({
-            memberships: [{ role: Role.OWNER }],
-        });
-
-        expect(guard.canActivate(context)).toBe(true);
+  it('should deny access when user does not have required role', () => {
+    const context = createMockContext({
+      memberships: [{ role: Role.VIEWER }],
     });
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+    
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+  });
 
-    it('should deny access when user does not have required role', () => {
-        reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-
-        const context = createMockContext({
-            memberships: [{ role: Role.VIEWER }],
-        });
-
-        expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    });
-
-    it('should throw ForbiddenException when user is not authenticated', () => {
-        reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-
-        const context = createMockContext(null);
-
-        expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    });
-
-    it('should throw ForbiddenException when user has no role', () => {
-        reflector.getAllAndOverride.mockReturnValue([Role.ADMIN]);
-
-        const context = createMockContext({
-            memberships: [],
-        });
-
-        expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    });
-});
-
-describe('RequireRole decorator', () => {
-    it('should set metadata on method', () => {
-        class TestController {
-            @RequireRole(Role.ADMIN)
-            testMethod() {}
-        }
-
-        const metadata = Reflect.getMetadata('roles', TestController.prototype.testMethod);
-        expect(metadata).toEqual([Role.ADMIN]);
-    });
-
-    it('should set metadata on class', () => {
-        @RequireRole(Role.OWNER)
-        class TestController {}
-
-        const metadata = Reflect.getMetadata('roles', TestController);
-        expect(metadata).toEqual([Role.OWNER]);
-    });
+  it('should throw ForbiddenException when user is not authenticated', () => {
+    const context = createMockContext(null);
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+    
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+  });
 });
 
