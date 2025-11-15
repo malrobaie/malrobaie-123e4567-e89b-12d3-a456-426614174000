@@ -4,14 +4,14 @@ A production-ready **Task Management System** with **Role-Based Access Control (
 
 ## 📋 Table of Contents
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Setup Instructions](#setup-instructions)
-- [Data Model](#data-model)
-- [Access Control Implementation](#access-control-implementation)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Future Considerations](#future-considerations)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Setup Instructions](#-setup-instructions)
+- [Data Model](#-data-model)
+- [Access Control Implementation](#-access-control-implementation)
+- [API Documentation](#-api-documentation)
+- [Testing](#-testing)
+- [Future Considerations](#-future-considerations)
 
 ---
 
